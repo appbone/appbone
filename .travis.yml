@@ -1,0 +1,4 @@
+# 使用travis-ci.com来做持续集成
+language: node_js
+node_js:
+- '0.10'
