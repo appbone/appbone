@@ -150,6 +150,7 @@
             this.rootAction = this.routes[''];
             this.comingAction = null;
             this.recordRouteHistory();
+            this.listenTo(Appbone.globalEventBus, 'cleancachedview', this.cleanCachedView);
         },
         start: function() {
             // call Backbone.history.start() to enable all routes
@@ -252,11 +253,44 @@
         },
         /**
          * 缓存"页面"视图
+         * 
          * @param  {string} cacheKey
          * @param  {PageView} pageView
          */
         cachePageView: function(cacheKey, pageView) {
             this.cachedPageViews[cacheKey] = pageView;
+        },
+        /**
+         * 清除缓存的PageView
+         * 可通过全局事件来完成清除动作
+         * Appbone.globalEventBus.trigger('cleancachedview', 'index');
+         *
+         * 由于一般是通过当前路由的path来作为缓存的key, 因此清除缓存的时候需要分2种情况
+         * 1. 对于没有有斜杠的, 删除基于这个路由的全部缓存
+         *    例如 cacheKey 为index时, 需要删除所有以index为path的PageView缓存
+         *    有可能有 index, index/123, index/456, index/123/456
+         *    如果考虑到性能问题(缓存了太多View在内存中), 这种可变参数的view可以不启用缓存功能
+         * 2. 对于有斜杠的, 则精确删除这个缓存
+         * 
+         * @param {string} cacheKey
+         */
+        cleanCachedView: function(cacheKey) {
+            var delimit = cacheKey.indexOf('/');
+            if (delimit === -1) { // 没斜杠的模糊删除
+                // 先精准删除一次
+                delete this.cachedPageViews[cacheKey];
+
+                // 删除所有以 cacheKey/ 开头的缓存
+                var cacheKeySlash = cacheKey + '/';
+                for (var key in this.cachedPageViews) {
+                    if (key.substring(0, cacheKeySlash.length) === cacheKeySlash) {
+                        delete this.cachedPageViews[key];
+                    }
+                }
+            } else { // 有斜杠的精确删除
+                this.cachedPageViews[cacheKey] = null;
+                delete this.cachedPageViews[cacheKey];
+            }
         },
         /**
          * 获取渲染页面所需的默认可选项, 根据当前路由和接下来路由计算得来
@@ -292,7 +326,6 @@
             var parentAction = this.breadcrumb[currentActionFirstIndex - 1];
 
             // 无论从哪个页面跳回根路由, 都会被视为回退操作
-            // TODO this.rootAction === this.comingAction 这种情况存在吗?
             if (this.rootAction === this.comingAction || parentAction === this.comingAction) {
                 direction = Appbone.RenderPageOptions.DIRECTION_BACK;
             }
