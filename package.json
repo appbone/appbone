@@ -26,6 +26,7 @@
         "node": ">=0.8.0"
     },
     "scripts": {
-        "build": "npm install && grunt"
+        "before_script": "npm install -g grunt-cli",
+        "test": "grunt"
     }
 }
