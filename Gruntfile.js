@@ -1,8 +1,12 @@
 /**
- * 从 yeoman/generator-webapp 中获得的灵感, 非常感谢
+ * grunt 构建脚本, 适用构建 JavaScript Library.
+ * 
+ * 包含的任务有:
+ * 1. 代码检查
+ * 2. 测试
+ * 3. 发布(代码压缩, 替换版本号)
  *
  * @author https://github.com/ufologist
- * @see https://github.com/yeoman/generator-webapp
  */
 var config = {
     src: 'src',
@@ -24,13 +28,23 @@ module.exports = function(grunt) {
             dist: ['<%= config.dist %>']
         },
 
+        concat: {
+            dist: {
+                src: '<%= config.src %>/<%= pkg.name %>.js',
+                dest: '<%= config.dist %>/<%= pkg.name %>-<%= pkg.version %>.js',
+            }
+        },
+
         uglify: {
             options: {
-                preserveComments: 'some'
+                preserveComments: 'some',
+                compress: {
+                    'drop_console': true
+                }
             },
-            src: {
+            product: {
                 files: {
-                    '<%= config.dist %>/<%= pkg.name %>-<%= pkg.version %>.js': '<%= config.src %>/*.js'
+                    '<%= config.dist %>/<%= pkg.name %>-<%= pkg.version %>.min.js': '<%= config.src %>/*.js'
                 }
             }
         },
@@ -113,10 +127,11 @@ module.exports = function(grunt) {
     grunt.registerTask('default', function() {
         grunt.task.run([
             'clean',
-            'jshint',
-            'karma',
-            'uglify',
-            'sed'
+            'jshint', // 代码检查
+            'karma',  // test
+            'concat', // 生成未压缩源码
+            'uglify', // minification
+            'sed'     // 替换版本号
         ]);
     });
 };

@@ -2,7 +2,7 @@
  * Appbone.js
  *
  * TODO 这里介绍下项目, 然后下面放置项目的主页
- * http://backbonejs.org
+ * https://github.com/appbone/appbone
  * 
  * @version %VERSION% %DATE%
  * @license MIT
@@ -34,8 +34,10 @@
         return obj;
     }
 
-    // TODO 通过sed来替换
+
+    // 版本号会通过grunt任务动态生成
     Appbone.VERSION = '%VERSION%';
+
 
     /**
      * Appbone.globalEventBus
