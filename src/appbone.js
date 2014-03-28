@@ -19,6 +19,8 @@
         root.Appbone = factory(root, {}, root.Backbone);
     }
 }(this, function(root, Appbone, Backbone) {
+    var previousAppbone = root.Appbone;
+
     // 从underscore那里借来的extend方法
     function _extend(obj) {
         var sources = Array.prototype.slice.call(arguments, 1),
@@ -37,6 +39,12 @@
 
     // 版本号会通过grunt任务动态生成
     Appbone.VERSION = '%VERSION%';
+
+
+    Appbone.noConflict = function() {
+        root.Appbone = previousAppbone;
+        return this;
+    };
 
 
     /**
