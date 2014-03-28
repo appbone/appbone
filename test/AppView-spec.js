@@ -3,7 +3,7 @@
     var pageA = new Appbone.PageView();
     var pageB = new Appbone.PageView();
 
-    describe('记录路由的历史', function() {
+    describe('AppView总管App', function() {
         beforeEach(function() {
             $('body').html('<div class="spa"><div class="page-stack"></div></div>');
             appView = new Appbone.AppView();

@@ -46,7 +46,7 @@
         setting: function() {}
     });
 
-    var PageViewCacheable = Appbone.PageView.extend({});
+    var PageViewCacheable = Appbone.PageView.extend();
     var PageViewNoneCache = Appbone.PageView.extend({
         initialize: function() {
             Appbone.PageView.prototype.initialize.apply(this, arguments);
