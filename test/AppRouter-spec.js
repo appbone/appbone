@@ -115,7 +115,7 @@
             expect(routeHistory).toBe('signin,index,signin');
 
             appRouter.tryCleanRouteHistory();
-            var routeHistory = appRouter.breadcrumb.join(',');
+            routeHistory = appRouter.breadcrumb.join(',');
             expect(routeHistory).toBe('');
         });
         it('当路由到index时重置路由历史记录', function() {
@@ -129,7 +129,7 @@
             expect(routeHistory).toBe('signin,index,signin,index');
 
             appRouter.tryCleanRouteHistory();
-            var routeHistory = appRouter.breadcrumb.join(',');
+            routeHistory = appRouter.breadcrumb.join(',');
             expect(routeHistory).toBe('');
         });
 

@@ -51,7 +51,7 @@
      * AppView
      * 
      * 用于规范App初始化/启动的流程与逻辑.
-     * 实现了对整个页面元素的总控制, 便于切换"页面"(替换原来页面上所有的内容)
+     * 实现了对整个页面元素(body)的总控制, 便于切换"页面"(替换原来页面上所有的内容)
      *
      * 主要职责:
      * 1. 构造AppRouter(先只是构造好, 还不急着启动)
@@ -61,16 +61,33 @@
      * 
      * 规范化的App初始化逻辑
      * AppView --初始化/启动--> AppRouter --根据route构造--> View --提交给--> AppView -> 渲染页面
+     *
+     * AppView所需要的DOM结构
+     * <body>
+     *    <div class="spa">
+     *        <div class="page-stack">
+     *            <!-- 动态刷新整个页面, 放置2个page用于实现(过场)动画效果 -->
+     *            <!-- <div class="page">PageView</div><div class="page">PageView</div> -->
+     *        </div>
+     *    </div>
+     * </body>
      * 
      * @constructor Appbone.AppView
      */
     Appbone.AppView = Backbone.View.extend({
         el: 'body',
+        /**
+         * 初始化AppView
+         * 
+         * @param {object} options {spaClass: '.spa', pageStackClass: '.page-stack'}
+         */
         initialize: function(options) {
             options = options || {};
-            var pageStackSelector = options.pageStackSelector || '.page-stack';
+            var spaClass = options.spaClass || '.spa';
+            var pageStackClass = options.pageStackClass || '.page-stack';
 
-            this.$pageStack = this.$(pageStackSelector);
+            this.$spa = this.$(spaClass);
+            this.$pageStack = this.$(pageStackClass);
             this.currentPageView = null;
 
             this.initAppRouter(options);
@@ -144,6 +161,11 @@
      * @constructor Appbone.AppRouter
      */
     Appbone.AppRouter = Backbone.Router.extend({
+        /**
+         * 初始化AppRouter
+         * 
+         * @param {object} options {appView: 在AppView中构造AppRouter}
+         */
         initialize: function(options) {
             this.appView = options.appView;
             this.cachedPageViews = {};
