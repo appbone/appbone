@@ -115,6 +115,13 @@ module.exports = function(grunt) {
                 ]
             },
 
+            // This creates a server that will automatically run your tests when you
+            // save a file and display results in the terminal.
+            daemon: {
+                options: {
+                    singleRun: false
+                }
+            },
             // This is useful for running the tests just once.
             run: {
                 options: {
@@ -127,11 +134,18 @@ module.exports = function(grunt) {
     grunt.registerTask('default', function() {
         grunt.task.run([
             'clean',
-            'jshint', // 代码检查
-            'karma',  // test
-            'concat', // 生成未压缩源码
-            'uglify', // minification
-            'sed'     // 替换版本号
+            'jshint',    // 代码检查
+            'karma:run', // test
+            'concat',    // 生成未压缩源码
+            'uglify',    // minification
+            'sed'        // 替换版本号
+        ]);
+    });
+
+    // 持续测试
+    grunt.registerTask('test', function() {
+        grunt.task.run([
+            'karma:daemon'
         ]);
     });
 };

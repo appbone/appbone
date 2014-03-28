@@ -3,6 +3,11 @@
     var pageA = new Appbone.PageView();
     var pageB = new Appbone.PageView();
 
+    var appready = false;
+    Appbone.globalEventBus.on(Appbone.globalEvent.appready, function() {
+        appready = true;
+    });
+
     describe('AppView总管App', function() {
         beforeEach(function() {
             $('body').html('<div class="spa"><div class="page-stack"></div></div>');
@@ -16,6 +21,10 @@
             expect(appView.$spa.length).toBe(1);
             expect(appView.$pageStack.length).toBe(1);
         });
+        it('appready事件', function() {
+            expect(appready).toBe(true);
+        });
+
         it('记录当前渲染的PageView', function() {
             appView.renderPage(pageA);
             expect(appView.currentPageView).toBe(pageA);

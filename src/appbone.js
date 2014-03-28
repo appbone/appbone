@@ -45,6 +45,10 @@
      * 负责监听/派发全局事件
      */
     Appbone.globalEventBus = _extend({}, Backbone.Events);
+    Appbone.globalEvent = {
+        appready: 'appready.appbone',
+        cleancachedview: 'cleancachedview.appbone'
+    };
 
 
     /**
@@ -120,6 +124,7 @@
         onAppReady: function() {
             // 默认实现启动AppRouter, 一般都是这样
             this.startAppRouter();
+            Appbone.globalEventBus.trigger(Appbone.globalEvent.appready, this);
         },
         startAppRouter: function() {
             if (this.appRouter) {
@@ -172,7 +177,7 @@
             this.rootAction = this.routes[''];
             this.comingAction = null;
             this.recordRouteHistory();
-            this.listenTo(Appbone.globalEventBus, 'cleancachedview', this.cleanCachedView);
+            this.listenTo(Appbone.globalEventBus, Appbone.globalEvent.cleancachedview, this.cleanCachedView);
         },
         start: function() {
             // call Backbone.history.start() to enable all routes
@@ -282,7 +287,7 @@
         /**
          * 清除缓存的PageView
          * 可通过全局事件来完成清除动作
-         * Appbone.globalEventBus.trigger('cleancachedview', 'index');
+         * Appbone.globalEventBus.trigger('cleancachedview.appbone', 'index');
          *
          * 由于一般是通过当前路由的path来作为缓存的key, 因此清除缓存的时候需要分2种情况
          * 1. 对于没有有斜杠的, 删除基于这个路由的全部缓存
