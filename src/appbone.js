@@ -162,9 +162,6 @@
          * 通过记录action名称的方式来记录路由历史
          */
         recordRouteHistory: function() {
-            if (!this.routes) {
-                return;
-            }
             this.breadcrumb = [];
             // XXX 不支持监听指定匿名函数的route
             this.on('route', this.onRouteEvent);
