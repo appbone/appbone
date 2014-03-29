@@ -16,7 +16,7 @@
         },
         initialize: function() {
             Appbone.PageView.prototype.initialize.apply(this, arguments);
-            this.cache = false;
+            this.cacheable = false;
         },
         foo: function() {
             this.hasDelegateEvents = true;
@@ -25,7 +25,9 @@
 
     describe('PageView控制单个页面的视图', function() {
         beforeEach(function() {
+            PageViewCacheable.cacheable = true;
             pageViewCacheable = new PageViewCacheable();
+
             pageViewNoneCache = new PageViewNoneCache();
 
             spyOn(pageViewCacheable, 'renderView');
@@ -37,8 +39,13 @@
         });
 
         it('PageView能够配置为可缓存', function() {
-            expect(pageViewCacheable.cache).toBe(true);
-            expect(pageViewNoneCache.cache).toBe(false);
+            expect(pageViewCacheable.cacheable).toBe(true);
+            expect(pageViewNoneCache.cacheable).toBe(false);
+        });
+        it('临时将可缓存的PageView配置为不缓存', function() {
+            PageViewCacheable.cacheable = false;
+            pageViewCacheable = new PageViewCacheable();
+            expect(pageViewCacheable.cacheable).toBe(false);
         });
         it('PageView渲染后转变状态', function() {
             pageViewCacheable.render();

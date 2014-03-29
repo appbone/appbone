@@ -50,7 +50,7 @@
     var PageViewNoneCache = Appbone.PageView.extend({
         initialize: function() {
             Appbone.PageView.prototype.initialize.apply(this, arguments);
-            this.cache = false;
+            this.cacheable = false;
         }
     });
 
@@ -214,6 +214,24 @@
             expect(appRouter.cachedPageViews['index/123']).not.toBeDefined();
             expect(appRouter.cachedPageViews['index/456']).not.toBeDefined();
             expect(appRouter.cachedPageViews['index/123/456']).not.toBeDefined();
+        });
+    });
+
+    describe('获取渲染页面的选项', function() {
+        beforeEach(function() {
+            appRouter = new AppRouter({});
+        });
+
+        it('默认的选项会设置好路由方向和路由的记录', function() {
+            appRouter.breadcrumb = ['signin'];
+            appRouter.comingAction = 'index';
+
+            var options = appRouter.getDefaultRenderPageOptions();
+            expect(options).toEqual({
+                direction: Appbone.RenderPageOptions.DIRECTION_FORWARD,
+                currentAction: 'signin',
+                comingAction: 'index'
+            });
         });
     });
 })();

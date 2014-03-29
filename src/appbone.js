@@ -2,6 +2,8 @@
  * Appbone.js
  *
  * TODO 这里介绍下项目, 然后下面放置项目的主页
+ * 测试已经写得差不多了, 看一下所有的手机项目, 看还有没有需要补充的
+ * 再过一下测试和覆盖率, 看看测试还有没有需要补充的地方
  * https://github.com/appbone/appbone
  * 
  * @version %VERSION% %DATE%
@@ -168,7 +170,7 @@
      *
      * 主要职责:
      * 1. 记录route的历史(为了辅助渲染页面)
-     * 2. 根据route映射来构造(缓存)View
+     * 2. 根据route映射来构造(缓存)PageView, 并支持清除缓存
      * 3. 借助 AppView 来渲染View
      * 
      * @constructor Appbone.AppRouter
@@ -227,6 +229,8 @@
          * @param {Array}    args
          */
         execute: function(callback, args) {
+            // XXX 已经给Backbone提了issue, Backbone接受给execute添加一个actionName的参数,
+            // 考虑到兼容性, 这里还是保留着
             this.setComingAction(callback);
             // super
             Backbone.Router.prototype.execute.apply(this, arguments);
@@ -266,7 +270,7 @@
             var pageView = this.getCachedPage(cacheKey);
             if (!pageView) {
                 pageView = new PageView(options);
-                if (pageView.cache) {
+                if (pageView.cacheable) {
                     this.cachePageView(cacheKey, pageView);
                 }
             }
@@ -386,7 +390,7 @@
             return Backbone.history.getFragment();
         },
         /**
-         * 代理 AppView 的方法来渲染整个页面
+         * 使用 AppView 来渲染整个页面
          * 
          * @param {Appbone.PageView} pageView
          * @param {Appbone.RenderPageOptions} [options=getDefaultRenderPageOptions()]
@@ -418,7 +422,8 @@
     Appbone.PageView = Backbone.View.extend({
         className: 'page',
         initialize: function() {
-            this.cache = true;
+            // Constructor的静态属性, 不写死为Appbone.PageView, 方便子类临时覆盖cacheable
+            this.cacheable = this.constructor.cacheable;
             this.rendered = false;
         },
         render: function() {
@@ -437,7 +442,7 @@
         remove: function() {
             // 需要cache的view也会从DOM中移除
             // 但保留jquery data/events, 因此delegateEvents都还在
-            if (this.cache) {
+            if (this.cacheable) {
                 this.$el.detach();
             } else {
                 Backbone.View.prototype.remove.apply(this);
@@ -457,10 +462,16 @@
          * @abstract
          */
         cleanup: function() {},
+        /**
+         * 子类可覆盖实现如何进行回退操作
+         */
+        back: function() {
+            history.back();
+        },
         beforeRender: function() {
             var needRender = true;
             // 缓存的view不需要执行渲染逻辑, 因为DOM元素都还在, 事件监听也被保留了
-            if (this.cache && this.rendered) {
+            if (this.cacheable && this.rendered) {
                 needRender = false;
             }
             return needRender;
@@ -468,6 +479,8 @@
         afterRender: function() {
             this.rendered = true;
         }
+    }, {
+        cacheable: true
     });
 
 
