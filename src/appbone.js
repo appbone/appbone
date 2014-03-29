@@ -68,7 +68,12 @@
      * 负责监听/派发全局事件
      */
     Appbone.globalEventBus = _extend({}, Backbone.Events);
-    Appbone.globalEvent = {
+    /**
+     * 列举出所有的全局事件
+     * 
+     * @type {object}
+     */
+    Appbone.globalEvents = {
         appready: 'appready.appbone',
         cleancachedview: 'cleancachedview.appbone'
     };
@@ -149,7 +154,7 @@
             // 默认实现启动AppRouter, 一般都是这样
             this.startAppRouter();
             this.appready = true;
-            Appbone.globalEventBus.trigger(Appbone.globalEvent.appready, this);
+            Appbone.globalEventBus.trigger(Appbone.globalEvents.appready, this);
         },
         startAppRouter: function() {
             if (this.appRouter) {
@@ -202,7 +207,7 @@
             this.rootAction = this.routes[''];
             this.comingAction = null;
             this.recordRouteHistory();
-            this.listenTo(Appbone.globalEventBus, Appbone.globalEvent.cleancachedview, this.cleanCachedView);
+            this.listenTo(Appbone.globalEventBus, Appbone.globalEvents.cleancachedview, this.cleanCachedView);
         },
         start: function() {
             // call Backbone.history.start() to enable all routes
@@ -420,27 +425,25 @@
 
 
     /**
-     * PageView
-     *
-     * 单页应用中会占据整个页面的View.
-     * 单页应用一般分为多个功能模块, 例如登录页, 首页等, 对应的就是一个个PageView的实现.
+     * 通用View, 用于标准化View的逻辑.
      *
      * 主要职责:
      * 1. 规范视图渲染的逻辑(渲染前/后)
-     * 2. 实现缓存机制, 不会重复渲染View, 以保留页面的状态(例如输入项, 滚动条的状态)
-     *
-     * 页面View的生命周期
-     * initialize -> render -> beforeRender -> renderView(开启缓存仅执行一次) -> afterRender -> remove
-     *
-     * @constructor Appbone.PageView
+     * 2. 规范视图方法的命名render, beforeRender, renderView, afterRender, remove, cleanup
+     * 3. 规范视图发出的事件如何对外
+     * 
+     * @constructor Appbone.BaseView
+     * @abstract
      */
-    Appbone.PageView = Backbone.View.extend({
-        className: 'page',
-        initialize: function() {
-            // Constructor的静态属性, 不写死为Appbone.PageView, 方便子类临时覆盖cacheable
-            this.cacheable = this.constructor.cacheable;
+    Appbone.BaseView = Backbone.View.extend({
+        initialize: function(options) {
             this.rendered = false;
         },
+        /**
+         * 默认实现同步的视图渲染流程, 子类可以覆盖实现异步或者其他个性化的渲染流程
+         * 
+         * @return {View}
+         */
         render: function() {
             // 渲染view时, 不要先render再添加DOM,
             // 应该先将view的DOM添加到document中, 再调用render,
@@ -454,6 +457,92 @@
             this.afterRender();
             return this;
         },
+        /**
+         * 渲染前做些什么, 可以做出判断而中断执行渲染.
+         * 一般会在这里实现View数据的准备工作.
+         * 
+         * @return {boolean} 是否需要执行渲染
+         */
+        beforeRender: function() {
+            var needRender = true;
+            return needRender;
+        },
+        /**
+         * 渲染后做些什么
+         */
+        afterRender: function() {
+            this.rendered = true;
+        },
+        /**
+         * 子类实现渲染View的逻辑
+         *
+         * @abstract
+         */
+        renderView: function() {},
+        remove: function() {
+            Backbone.View.prototype.remove.apply(this);
+            this.cleanup();
+            return this;
+        },
+        /**
+         * 子类实现清理额外资源的方法, 例如清除setInterval之类的
+         *
+         * @abstract
+         */
+        cleanup: function() {},
+        /**
+         * 判断View的element是否在DOM中(不管是remove还是detach操作后都会让View从DOM中)
+         * 
+         * @return {boolean}
+         */
+        isElementInDom: function() {
+            return this.$el.parent().length > 0;
+        }
+    }, {
+        /**
+         * 列举出View会(对外)发出哪些事件, 方便外部监听.
+         *
+         * 例如 new View1().on(View2.events.foo, function() {});
+         * 
+         * @type {object}
+         */
+        events: null
+    });
+
+
+    /**
+     * PageView
+     *
+     * 单页应用中会占据整个页面的View.
+     * 单页应用一般分为多个功能模块, 例如登录页, 首页等, 对应的就是一个个PageView的实现.
+     *
+     * 主要职责:
+     * 1. 实现缓存机制, 不会重复渲染View, 以保留页面的状态(例如输入项, 滚动条的状态)
+     *
+     * 页面View的生命周期
+     * initialize -> render -> beforeRender -> renderView(开启缓存仅执行一次) -> afterRender -> remove
+     *
+     * @constructor Appbone.PageView
+     * @abstract
+     */
+    Appbone.PageView = Appbone.BaseView.extend({
+        className: 'page',
+        initialize: function(options) {
+            Appbone.BaseView.prototype.initialize.apply(this, arguments);
+            // Constructor的静态属性, 不写死为Appbone.PageView, 方便子类临时覆盖cacheable
+            this.cacheable = this.constructor.cacheable;
+        },
+        /**
+         * 可缓存的PageView在执行过一次渲染后(rendered为true), 不会再次执行渲染逻辑.
+         * 也就是说renderView只会执行一次, 因为DOM元素都还保留在PageView中, 事件监听也会被保留.
+         */
+        beforeRender: function() {
+            var needRender = true;
+            if (this.cacheable && this.rendered) {
+                needRender = false;
+            }
+            return needRender;
+        },
         remove: function() {
             // 需要cache的view也会从DOM中移除
             // 但保留jquery data/events, 因此delegateEvents都还在
@@ -466,33 +555,10 @@
             return this;
         },
         /**
-         * 子类实现渲染View的逻辑
-         *
-         * @abstract
-         */
-        renderView: function() {},
-        /**
-         * 子类实现清理额外资源的方法, 例如清除setInterval之类的
-         *
-         * @abstract
-         */
-        cleanup: function() {},
-        /**
          * 子类可覆盖实现如何进行回退操作
          */
         back: function() {
             history.back();
-        },
-        beforeRender: function() {
-            var needRender = true;
-            // 缓存的view不需要执行渲染逻辑, 因为DOM元素都还在, 事件监听也被保留了
-            if (this.cacheable && this.rendered) {
-                needRender = false;
-            }
-            return needRender;
-        },
-        afterRender: function() {
-            this.rendered = true;
         }
     }, {
         cacheable: true

@@ -47,13 +47,6 @@
             pageViewCacheable = new PageViewCacheable();
             expect(pageViewCacheable.cacheable).toBe(false);
         });
-        it('PageView渲染后转变状态', function() {
-            pageViewCacheable.render();
-            expect(pageViewCacheable.rendered).toBe(true);
-
-            pageViewNoneCache.render();
-            expect(pageViewNoneCache.rendered).toBe(true);
-        });
 
         it('缓存的PageView多次渲染时渲染逻辑只会执行一次', function() {
             pageViewCacheable.render();
@@ -76,7 +69,7 @@
             pageViewCacheable.$el.click();
             expect(pageViewCacheable.hasDelegateEvents).toBe(true);
         });
-        it('不缓存的PageView被移除时会被remove掉', function() {
+        it('不缓存的PageView被移除时会被完全remove掉', function() {
             pageViewNoneCache.remove();
             pageViewNoneCache.$el.click();
             expect(pageViewNoneCache.hasDelegateEvents).not.toBeDefined();

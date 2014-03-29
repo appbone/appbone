@@ -208,7 +208,7 @@
             appRouter.getPageView(PageViewCacheable, {}, 'index/123');
             appRouter.getPageView(PageViewCacheable, {}, 'index/456');
             appRouter.getPageView(PageViewCacheable, {}, 'index/123/456');
-            Appbone.globalEventBus.trigger(Appbone.globalEvent.cleancachedview, 'index');
+            Appbone.globalEventBus.trigger(Appbone.globalEvents.cleancachedview, 'index');
 
             expect(appRouter.cachedPageViews.index).not.toBeDefined();
             expect(appRouter.cachedPageViews['index/123']).not.toBeDefined();

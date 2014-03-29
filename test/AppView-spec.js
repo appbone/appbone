@@ -4,7 +4,7 @@
     var pageB = new Appbone.PageView();
 
     var appready = false;
-    Appbone.globalEventBus.on(Appbone.globalEvent.appready, function(appView) {
+    Appbone.globalEventBus.on(Appbone.globalEvents.appready, function(appView) {
         appready = appView.appready;
     });
 
