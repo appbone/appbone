@@ -128,6 +128,17 @@ module.exports = function(grunt) {
                     singleRun: true
                 }
             }
+        },
+
+        // 从backbone.marionette那里借鉴来的源码分析任务
+        plato: {
+            options: {
+                jshint: grunt.file.readJSON('.jshintrc')
+            },
+            appbone: {
+                src: 'src/*.js',
+                dest: 'reports'
+            }
         }
     });
 
@@ -138,7 +149,8 @@ module.exports = function(grunt) {
             'karma:run', // test
             'concat',    // 生成未压缩源码
             'uglify',    // minification
-            'sed'        // 替换版本号
+            'sed',       // 替换版本号
+            'plato'      // JavaScript Source Analysis
         ]);
     });
 

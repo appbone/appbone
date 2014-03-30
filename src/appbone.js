@@ -491,7 +491,7 @@
          */
         cleanup: function() {},
         /**
-         * 判断View的element是否在DOM中(不管是remove还是detach操作后都会让View从DOM中)
+         * 判断View的element是否在DOM中(不管是remove还是detach操作都会从DOM中删除View)
          * 
          * @return {boolean}
          */
