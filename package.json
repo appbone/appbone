@@ -1,7 +1,7 @@
 {
     "name": "appbone",
     "version": "0.1.0",
-    "description": "TODO",
+    "description": "Make your Backbone.js apps have a clear and standardized logic",
     "license": "MIT",
     "author": "https://github.com/ufologist",
     "homepage": "http://appbone.github.io/appbone/",

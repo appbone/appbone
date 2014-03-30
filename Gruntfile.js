@@ -5,6 +5,7 @@
  * 1. 代码检查
  * 2. 测试
  * 3. 发布(代码压缩, 替换版本号)
+ * 4. 代码分析报告
  *
  * @author https://github.com/ufologist
  */

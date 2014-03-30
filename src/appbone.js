@@ -1,22 +1,7 @@
 /**
  * Appbone.js
- *
- * Backbone给你提供了组件, 但没有告诉你怎么去组合来使用
- * 这就是Appbone项目的由来, 主要是流程规范化
- *
- * 当你使用Backbone的时候, 是不是有这样的疑惑
- * 1. 什么时候该初始化router
- * 2. 应该如何让一个web app启动起来, 具体的流程是怎样的?
- * 3. 每个项目的流程都差不多, 每个项目都自己用一套初始化流程
- *
- * Backbone因为提供了router, 因此最适合用来开发SPA
- *
- * 做一个简单的example项目, 来介绍如何使用appbone来开发SPA
- * 这个项目不需要用到requirejs, 就直接写一个登录页面和首页就行了, 能够来回跳转即可
+ * Make your Backbone.js apps have a clear and standardized logic.
  * 
- * TODO 这里介绍下项目, 然后下面放置项目的主页
- * 测试已经写得差不多了, 看一下所有的手机项目, 看还有没有需要补充的
- * 再过一下测试和覆盖率, 看看测试还有没有需要补充的地方
  * https://github.com/appbone/appbone
  * 
  * @version %VERSION% %DATE%
@@ -169,10 +154,28 @@
          * @param {Appbone.RenderPageOptions} 渲染页面的可选参数
          */
         renderPage: function(pageView, options) {
+            this.beforeRenderPage(pageView, options);
+
             this.resetCurrentPageView(pageView);
             this.$pageStack.append(pageView.$el);
             pageView.render();
+
+            this.afterRenderPage(pageView, options);
         },
+        /**
+         * 在渲染页面之前做些事情.
+         * 可以实现一些类似打开蒙板这样的操作.
+         *
+         * @abstract
+         */
+        beforeRenderPage: function(pageView, options) {},
+        /**
+         * 在渲染页面之后做些事情.
+         * 可以实现一些类似关闭蒙板这样的操作.
+         *
+         * @abstract
+         */
+        afterRenderPage:function(pageView, options) {},
         resetCurrentPageView: function(pageView) {
             if (this.currentPageView) {
                 this.currentPageView.remove();
