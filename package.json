@@ -1,8 +1,25 @@
 {
     "name": "appbone",
-    "description": "TODO",
     "version": "0.1.0",
+    "description": "TODO",
     "license": "MIT",
+    "author": "https://github.com/ufologist",
+    "homepage": "http://appbone.github.io/appbone/",
+    "main": "src/appbone.js",
+    "keywords": [
+        "backbone",
+        "extension",
+        "plugin",
+        "client",
+        "browser",
+        "webapp",
+        "spa",
+        "architecture",
+        "AppView",
+        "AppRouter",
+        "BaseView",
+        "PageView"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/appbone/appbone"
@@ -23,11 +40,11 @@
         "time-grunt": "~0.2.0",
         "jshint-stylish": "~0.1.3"
     },
-    "engines": {
-        "node": ">=0.8.0"
-    },
     "scripts": {
         "before_script": "npm install -g grunt-cli",
         "test": "grunt"
+    },
+    "engines": {
+        "node": ">=0.8.0"
     }
 }
