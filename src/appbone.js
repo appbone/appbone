@@ -189,7 +189,10 @@
      * AppRouter
      *
      * 负责配置路由映射, 集中(前置)处理参数, 相当于Front Controller模式.
-     * 通过路由映射来控制整个页面内容的"刷新", 以达到单页面中多页面切换的效果.
+     * 由于只有Router知道根据某个路由映射要做什么操作,
+     * 因此我们通过路由映射来控制整个页面内容的"刷新", 以达到单页面中多页面切换的效果.
+     * 但Router本身不应该承担渲染页面的工作, 应该由AppView来担当, 它才是整个应用的总管.
+     * Router只需要(根据路由映射)构造好页面, 告诉AppView要渲染这个页面, 将控制权转交给它.
      *
      * 主要职责:
      * 1. 记录route的历史(为了辅助渲染页面)
@@ -494,7 +497,7 @@
          */
         cleanup: function() {},
         /**
-         * 判断View的element是否在DOM中(不管是remove还是detach操作都会从DOM中删除View)
+         * 判断View的element是否在DOM中(不管是remove还是detach操作都会从DOM中删除View).
          * 
          * @return {boolean}
          */
