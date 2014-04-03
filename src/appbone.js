@@ -147,8 +147,11 @@
             }
         },
         /**
-         * 渲染整个页面, 默认实现只是替换当前页面的内容, 没有实现动画效果.
-         * 子类可以重写这个方法, 实现Page Transitions, 例如滑动(slide)效果.
+         * 渲染整个页面
+         * 主要逻辑为:
+         * 1. 渲染页面
+         * 2. 让2个页面(当前的页面和现在渲染的页面)切换
+         * 3. 记录当前渲染的是哪个页面
          * 
          * @param {View} pageView
          * @param {Appbone.RenderPageOptions} 渲染页面的可选参数
@@ -156,11 +159,23 @@
         renderPage: function(pageView, options) {
             this.beforeRenderPage(pageView, options);
 
-            this.resetCurrentPageView(pageView);
-            this.$pageStack.append(pageView.$el);
-            pageView.render();
+            // 第一次渲染整个页面
+            if (!this.currentPageView) {
+                this.firstTimeRenderPage(pageView, options);
+            } else {
+                // 采用prepend方式添加即将渲染的页面, 防止出现遮挡当前页面的问题
+                this.$pageStack.prepend(pageView.$el);
+                pageView.render();
+                this.currentPageView.transitionTo(pageView, options);
+                this.currentPageView = pageView;
+            }
 
             this.afterRenderPage(pageView, options);
+        },
+        firstTimeRenderPage: function(pageView, options) {
+            this.currentPageView = pageView;
+            this.$pageStack.append(pageView.el);
+            pageView.render();
         },
         /**
          * 在渲染页面之前做些事情.
@@ -175,13 +190,7 @@
          *
          * @abstract
          */
-        afterRenderPage:function(pageView, options) {},
-        resetCurrentPageView: function(pageView) {
-            if (this.currentPageView) {
-                this.currentPageView.remove();
-            }
-            this.currentPageView = pageView;
-        }
+        afterRenderPage: function(pageView, options) {}
     });
 
 
@@ -565,9 +574,30 @@
          */
         back: function() {
             history.back();
+        },
+        /**
+         * 由当前页面(this)切换到下一个页面(pageView).
+         * 具体的渲染逻辑已经由AppView.renderPage执行了, 这里只要负责实现2个页面如何切换就行了.
+         * 子类可以重写这个方法, 实现Page Transitions, 例如滑动(slide)效果.
+         *
+         * 过度动画分一般分为3个阶段
+         * 1. before transition
+         * 2. transition
+         * 3. after transition
+         *
+         * 页面过度动画的效果可以参考
+         * A showcase collection of various page transition effects using CSS animations.
+         * http://tympanus.net/codrops/2013/05/07/a-collection-of-page-transitions/
+         * 
+         * @param {PageView} pageView 接下来(即将渲染)的页面
+         * @param {RenderPageOptions} renderPageOptions
+         */
+        transitionTo: function(pageView, renderPageOptions) {
+            this.remove();
         }
     }, {
-        cacheable: true
+        cacheable: true,
+        animateTimeoutId: null // 用于终止页面过度动画回调的执行
     });
 
 
