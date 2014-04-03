@@ -588,6 +588,9 @@
          * 页面过度动画的效果可以参考
          * A showcase collection of various page transition effects using CSS animations.
          * http://tympanus.net/codrops/2013/05/07/a-collection-of-page-transitions/
+         *
+         * nifty modal window effects
+         * http://tympanus.net/Development/ModalWindowEffects/
          * 
          * @param {PageView} pageView 接下来(即将渲染)的页面
          * @param {RenderPageOptions} renderPageOptions
